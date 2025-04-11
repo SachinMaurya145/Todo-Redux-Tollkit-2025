@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ADD_TASK, DEL_TASK, delTask, EDIT_TASK, editTask } from '../ReduxFiles/actions';
+import { addTask } from '../ReduxFiles/tasksSlice';
 
 const Todo = () => {
   const [inputValue, setInputValue] = useState('');
@@ -8,17 +9,15 @@ const Todo = () => {
   const [editValue, setEditValue] = useState('');
 
   const dispatch = useDispatch();
-  const tasks = useSelector((state) => state.tasks);
+  const tasks = useSelector((state) => state.todoReducer.tasks);
+  console.log("TODO --", tasks)
 
   // Add Task
   const handleInput = (e) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    dispatch({
-      type: ADD_TASK,
-      payload: inputValue.trim(),
-    });
+    dispatch(addTask(inputValue));
 
     setInputValue('');
   };
@@ -76,7 +75,7 @@ const Todo = () => {
 
         {/* Task List */}
         <ul className="space-y-3">
-          {tasks.map((task, index) => (
+          {tasks?.map((task, index) => (
             <li key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl shadow-sm">
               {/* If editing this task */}
               {editIndex === index ? (
