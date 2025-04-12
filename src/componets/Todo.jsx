@@ -1,57 +1,41 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ADD_TASK, DEL_TASK, delTask, EDIT_TASK, editTask } from '../ReduxFiles/actions';
-import { addTask } from '../ReduxFiles/tasksSlice';
+import { addTask, deleteTask, editTask } from '../ReduxFiles/tasksSlice';
 
 const Todo = () => {
   const [inputValue, setInputValue] = useState('');
-  const [editIndex, setEditIndex] = useState(null); // ⬅️ track which item is being edited
+  const [editIndex, setEditIndex] = useState(null);
   const [editValue, setEditValue] = useState('');
 
   const dispatch = useDispatch();
   const tasks = useSelector((state) => state.todoReducer.tasks);
-  console.log("TODO --", tasks)
 
   // Add Task
   const handleInput = (e) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
-
     dispatch(addTask(inputValue));
-
     setInputValue('');
   };
 
   // Delete Task
   const handleDelete = (index) => {
-    dispatch(delTask(index))
-    // dispatch({
-    //   type: DEL_TASK,
-    //   payload: index,
-    // });
+    dispatch(deleteTask(index));
   };
 
   // Start Editing
   const handleEdit = (index) => {
     setEditIndex(index);
-    setEditValue(tasks[index]); // Pre-fill with current value
+    setEditValue(tasks[index]);
   };
 
   // Save Edited Task
   const saveEdit = () => {
-
-    dispatch(editTask(editIndex, editValue))
-    // dispatch({
-    //   type: EDIT_TASK,
-    //   payload: {
-    //     index: editIndex,
-    //     newValue: editValue,
-    //   },
-    // });
-
-    // Reset
-    setEditIndex(null);
-    setEditValue('');
+    if (editValue.trim()) {
+      dispatch(editTask({ index: editIndex, newValue: editValue }));
+      setEditIndex(null);
+      setEditValue('');
+    }
   };
 
   return (
@@ -68,7 +52,10 @@ const Todo = () => {
             onChange={(e) => setInputValue(e.target.value)}
             className="flex-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600 transition">
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600 transition"
+          >
             Add
           </button>
         </form>
@@ -76,8 +63,10 @@ const Todo = () => {
         {/* Task List */}
         <ul className="space-y-3">
           {tasks?.map((task, index) => (
-            <li key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl shadow-sm">
-              {/* If editing this task */}
+            <li
+              key={index}
+              className="flex justify-between items-center bg-gray-50 p-3 rounded-xl shadow-sm"
+            >
               {editIndex === index ? (
                 <>
                   <input
